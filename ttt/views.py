@@ -27,8 +27,8 @@ def get_name(request):
 
 def get_move(request):
     if request.method == 'POST':
-        response_data['winner'] = 'X';
-        return HttpResponse(json.dumps(response_data), content_type="application/json")
+        response_data['winner'] = 'X'
+        return HttpResponse(request.data)
 
 def index(request):
     return render(request, 'ttt/index.html')

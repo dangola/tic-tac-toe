@@ -3,5 +3,5 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.get_name, name='index'),
-    url(r'^$', views.get_move),
+    url(r'^play$', views.get_move),
 ]
