@@ -1,0 +1,62 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <title>tic. tac. toe.</title>
+  <style>
+table.board {
+  border: 3px solid black;
+  width: 300px;
+  height: 300px;
+  text-align: center;
+  border-collapse: collapse;
+}
+table.board td, table.board th {
+  border: 1px solid black;
+  padding: 5px 4px;
+}
+  </style>
+  <script type="text/javascript">
+    const PLAYER_ICON = 'X';
+    var grid = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '];
+    var winner = ' ';
+
+    function play(id) {
+      grid[id] = PLAYER_ICON;
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", document.URL, true);
+      xhr.setRequestHeader("Content-type", "application/json");
+      xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            //var json = JSON.parse(xhr.responseText);
+          }
+        }
+      var data = JSON.stringify({"board": grid, "winner": winner});
+      xhr.send(data);
+
+      document.getElementById(id).innerHTML = PLAYER_ICON;
+    }
+  </script>
+</head>
+<body>
+  <div>Hello, {{ form.name }}. It is {% now "jS F Y H:i" %}</div>
+  <table class="board">
+  <tbody>
+    <tr>
+      <td id="0" onclick="play(this.id)"></td>
+      <td id="1" onclick="play(this.id)"></td>
+      <td id="2" onclick="play(this.id)"></td>
+    </tr>
+    <tr>
+      <td id="3" onclick="play(this.id)"></td>
+      <td id="4" onclick="play(this.id)"></td>
+      <td id="5" onclick="play(this.id)"></td>
+    </tr>
+    <tr>
+      <td id="6" onclick="play(this.id)"></td>
+      <td id="7" onclick="play(this.id)"></td>
+      <td id="8" onclick="play(this.id)"></td>
+    </tr>
+  </tbody>
+  </table>
+</body>
+</html>
