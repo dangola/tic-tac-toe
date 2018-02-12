@@ -5,6 +5,7 @@ from rest_framework import status, viewsets
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
+from .forms import NameForm
 
 @csrf_exempt
 def get_name(request):
@@ -17,8 +18,7 @@ def get_name(request):
             # process the data in form.cleaned_data as required
             # ...
             # redirect to a new URL:
-            return HttpResponse()
-           # return render(request, 'ttt/play.html', {'form': form})
+            return render(request, 'ttt/play.html', {'form': form})
     # if a GET (or any other method) we'll create a blank form
     else:
         form = NameForm()
