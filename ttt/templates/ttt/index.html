@@ -1,11 +1,15 @@
 {% load rest_framework %}
+{% load static %}
 
 <html>
-<body>
-<form method="POST">
-    {% csrf_token %}
-    {{ form }}
-    <input type="submit" value="Submit" />
-</form>
-</body>
+    <head>
+        <link rel="stylesheet" href="{% static 'ttt/ttt_style.css' %}">
+    </head>
+    <body>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" value="Submit" />
+    </form>
+    </body>
 </html>
