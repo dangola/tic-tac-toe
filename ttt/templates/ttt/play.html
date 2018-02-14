@@ -1,9 +1,12 @@
+{% csrf_token %}
+
 <!DOCTYPE HTML>
 <html>
 <head>
   <title>tic. tac. toe.</title>
   <style>
 table.board {
+  table-layout:fixed;
   border: 3px solid black;
   width: 300px;
   height: 300px;
@@ -11,34 +14,70 @@ table.board {
   border-collapse: collapse;
 }
 table.board td, table.board th {
-  border: 1px solid black;
+  word-wrap: break-word;
+  border: 1px solid blue;
   padding: 5px 4px;
+  overflow: hidden;
 }
   </style>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
   <script type="text/javascript">
     const PLAYER_ICON = 'X';
     var grid = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '];
     var winner = ' ';
 
+    // using jQuery
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+
     function play(id) {
       grid[id] = PLAYER_ICON;
-      var xhr = new XMLHttpRequest();
-      xhr.open("POST", document.URL, true);
-      xhr.setRequestHeader("Content-type", "application/json");
-      xhr.onreadystatechange = function() {
-          if (xhr.readyState === 4 && xhr.status === 200) {
-            //var json = JSON.parse(xhr.responseText);
-          }
-        }
-      var data = JSON.stringify({"board": grid, "winner": winner});
-      xhr.send(data);
 
       document.getElementById(id).innerHTML = PLAYER_ICON;
+
+      $.ajax({
+        type: "POST",
+        url: "{% url 'play' %}",
+        data: JSON.stringify({ grid:grid }),
+        success: function(data, textStatus, XmlHttpRequest) {
+             alert(data.grid)
+             grid = data.grid
+         },
+        dataType: "json",
+        traditional: true
+      });
     }
   </script>
 </head>
 <body>
-  <div>Hello, {{ form.name }}. It is {% now "jS F Y H:i" %}</div>
+  <div>Hello {{ name }}, It is {% now "jS F Y H:i" %}</div>
   <table class="board">
   <tbody>
     <tr>

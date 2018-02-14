@@ -49,3 +49,12 @@ Temporary Items
 ### Python ###
 .cache
 __pycache__
+
+### Django ###
+*.log
+*.pot
+
+### PyCharm ###
+.idea
+
+/static
