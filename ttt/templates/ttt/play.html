@@ -1,25 +1,24 @@
-{% csrf_token %}
-
 <!DOCTYPE HTML>
 <html>
 <head>
   <title>tic. tac. toe.</title>
   <style>
-table.board {
-  table-layout:fixed;
-  border: 3px solid black;
-  width: 300px;
-  height: 300px;
-  text-align: center;
-  border-collapse: collapse;
-}
-table.board td, table.board th {
-  word-wrap: break-word;
-  border: 1px solid blue;
-  padding: 5px 4px;
-  overflow: hidden;
-}
+    table.board {
+      table-layout:fixed;
+      border: 3px solid black;
+      width: 300px;
+      height: 300px;
+      text-align: center;
+      border-collapse: collapse;
+    }
+    table.board td, table.board th {
+      word-wrap: break-word;
+      border: 1px solid blue;
+      padding: 5px 4px;
+      overflow: hidden;
+    }
   </style>
+
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 
   <script type="text/javascript">
@@ -58,24 +57,43 @@ table.board td, table.board th {
     });
 
     function play(id) {
-      grid[id] = PLAYER_ICON;
+      if (document.getElementById(id).innerHTML.trim() != "" || winner != ' ') {
+        ;
+      }
+      else {
+        grid[id] = PLAYER_ICON;
 
-      document.getElementById(id).innerHTML = PLAYER_ICON;
+        document.getElementById(id).innerHTML = PLAYER_ICON;
 
-      $.ajax({
-        type: "POST",
-        url: "{% url 'play' %}",
-        data: JSON.stringify({ grid:grid }),
-        success: function(data, textStatus, XmlHttpRequest) {
-             alert(data.grid)
-             grid = data.grid
-         },
-        dataType: "json",
-        traditional: true
-      });
+        $.ajax({
+          type: "POST",
+          url: "{% url 'play' %}",
+          data: JSON.stringify({ grid:grid }),
+          success: function(data, textStatus, XmlHttpRequest) {
+               grid = data.grid
+               winner = data.winner
+               render(grid)
+           },
+          dataType: "json",
+          traditional: true
+        });
+      }
+
+      function render(grid) {
+        for (var i = 0; i < grid.length; i++) {
+          document.getElementById(i).innerHTML = grid[i];
+          if (winner != ' ') {
+            var winner_div = document.createElement('div');
+            winner_div.id = 'winner_div';
+            document.getElementsByTagName('body')[0].appendChild(winner_div);
+            document.getElementById('winner_div').innerHTML = winner + " won!";
+          }
+        }
+      }
     }
   </script>
 </head>
+
 <body>
   <div>Hello {{ name }}, It is {% now "jS F Y H:i" %}</div>
   <table class="board">
@@ -97,5 +115,7 @@ table.board td, table.board th {
     </tr>
   </tbody>
   </table>
+  <div></div>
 </body>
+
 </html>

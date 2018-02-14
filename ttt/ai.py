@@ -25,10 +25,16 @@ def ai_move(grid):
     move = {}
     move['grid'] = grid
     move['winner'] = ' '
+    winner = check_winner(grid)
+    if winner != ' ':
+        move['winner'] = winner
+        return move
+
     for i in range(len(grid)):
         if grid[i] == ' ':
             grid[i] = 'O'
             move['grid'] = grid
             move['winner'] = check_winner(grid)
             return move
+
     return move
