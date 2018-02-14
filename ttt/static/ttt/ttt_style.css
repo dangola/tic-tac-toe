@@ -1,0 +1,17 @@
+#name {
+  font-size: 16pt;
+}
+table.board {
+  table-layout:fixed;
+  border: 3px solid black;
+  width: 300px;
+  height: 300px;
+  text-align: center;
+  border-collapse: collapse;
+}
+table.board td, table.board th {
+  word-wrap: break-word;
+  border: 1px solid blue;
+  padding: 5px 4px;
+  overflow: hidden;
+}
