@@ -6,7 +6,7 @@
         <link rel="stylesheet" href="{% static 'ttt/ttt_style.css' %}">
     </head>
     <body>
-    <form method="POST">
+    <form method="POST" action="">
         {% csrf_token %}
         {{ form }}
         <input type="submit" value="Submit" />
