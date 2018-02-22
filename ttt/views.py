@@ -12,7 +12,7 @@ from .ai import ai_move
 @csrf_exempt
 @require_http_methods(["POST"])
 def play(request):
-    data = json.loads(request.body)
+    data = json.loads(request.body.decode('utf-8'))
     grid = data['grid']
     response = ai_move(grid)
     return JsonResponse(response)
