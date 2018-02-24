@@ -33,6 +33,15 @@ $.ajaxSetup({
     }
 });
 
+function contains(arr, elem) {
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i] == elem) {
+            return true;
+        }
+    }
+    return false;
+}
+
 function play(id) {
   if (document.getElementById(id).innerHTML.trim() != "" || winner != ' ') {
     ;
@@ -44,7 +53,7 @@ function play(id) {
     $.ajax({
       type: "POST",
       url: djangoUrl,
-      data: JSON.stringify({ grid:grid }),
+      data: JSON.stringify({ grid:grid, move:parseInt(id) }),
       success: function(data, textStatus, XmlHttpRequest) {
            grid = data.grid
            winner = data.winner
@@ -54,16 +63,35 @@ function play(id) {
       traditional: true
     });
   }
+}
 
-  function render(grid) {
+function render(grid) {
     for (var i = 0; i < grid.length; i++) {
       document.getElementById(i).innerHTML = grid[i];
-      if (winner != ' ') {
-        var winner_div = document.createElement('div');
-        winner_div.id = 'winner_div';
-        document.getElementsByTagName('body')[0].appendChild(winner_div);
-        document.getElementById('winner_div').innerHTML = winner + " won!";
-      }
     }
-  }
+
+    if (winner != ' ') {
+      document.getElementById('winner').innerHTML = winner + " won!";
+      document.getElementById('winner').style.visibility = "visible";
+      document.getElementById('reset_button').style.visibility = "visible";
+      document.getElementById('score').style.visibility = "visible";
+    }
+    else if (contains(grid, ' ')) {
+      ;
+    }
+    else {
+      document.getElementById('winner').innerHTML = "It was a draw! Nobody won.";
+      document.getElementById('winner').style.visibility = "visible";
+      document.getElementById('reset_button').style.visibility = "visible";
+      document.getElementById('score').style.visibility = "visible";
+    }
+}
+
+function reset() {
+    winner = ' ';
+    grid = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '];
+    render(grid);
+    document.getElementById('reset_button').style.visibility = "hidden";
+    document.getElementById('winner').style.visibility = "hidden";
+    document.getElementById('score').style.visibility = "hidden";
 }

@@ -1,4 +1,8 @@
-def ai_move(grid):
+import json
+
+
+def ai_response(request):
+
     def check_winner(grid):
         """ Check horizontal, vertical, diagonal win """
 
@@ -22,19 +26,26 @@ def ai_move(grid):
             return grid[2]
         return ' '
 
-    move = {}
-    move['grid'] = grid
-    move['winner'] = ' '
+    data = json.loads(request.body.decode('utf-8'))
+    grid = data['grid']
+    move = data['move']
+
+    response = {}
+    response['grid'] = grid
+    response['winner'] = ' '
+
+    if (move is None):
+        return response
     winner = check_winner(grid)
     if winner != ' ':
-        move['winner'] = winner
-        return move
+        response['winner'] = winner
+        return response
 
     for i in range(len(grid)):
         if grid[i] == ' ':
             grid[i] = 'O'
-            move['grid'] = grid
-            move['winner'] = check_winner(grid)
-            return move
+            response['grid'] = grid
+            response['winner'] = check_winner(grid)
+            return response
 
-    return move
+    return response

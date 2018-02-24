@@ -8,9 +8,18 @@ class User(models.Model):
     email = models.CharField(max_length=256)
     verified = models.BooleanField()
 
+    def __str__(self):
+        return self.username
+
 
 class Game(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     start_date = models.DateTimeField()
     grid = fields.ListField()
     winner = models.CharField(max_length=1)
+
+    def __str__(self):
+        return self.grid
+
+    def has_winner(self):
+        return self.winner != ' '
