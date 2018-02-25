@@ -55,9 +55,9 @@ function play(id) {
       url: djangoUrl,
       data: JSON.stringify({ grid:grid, move:parseInt(id) }),
       success: function(data, textStatus, XmlHttpRequest) {
-           grid = data.grid
-           winner = data.winner
-           render(grid)
+           grid = data.grid;
+           winner = data.winner;
+           render(grid);
        },
       dataType: "json",
       traditional: true

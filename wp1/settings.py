@@ -109,7 +109,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'EST'
 
 USE_I18N = True
 
@@ -131,12 +131,9 @@ REST_FRAMEWORK = {
     )
 }
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-# EMAIL_HOST = 'test.cloud.compas.cs.stonybrook.edu'
-EMAIL_PORT = 25
-EMAIL_USER = 'test'
-EMAIL_PASS = 'test'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'localhost'
+EMAIL_PORT = 1025
 
 LOGIN_REDIRECT_URL = 'login'
-LOGIN_REDIRECT_URL = 'login'
-    
+LOGOUT_REDIRECT_URL = 'login'

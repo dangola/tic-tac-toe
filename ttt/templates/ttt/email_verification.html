@@ -1,0 +1,32 @@
+{% load rest_framework %}
+{% load static %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script>
+    function sendRequest() {
+        console.log('{{ url }}');
+        $.ajax({
+          type: "POST",
+          url: '{{ url }}',
+          data: JSON.stringify({ email:'{{ email }}', key:'{{ key }}' }),
+          success: function(data, textStatus, XmlHttpRequest) {
+            console.log('success', data);
+            $('html').html(data);
+          },
+          dataType: 'html',
+          traditional: true
+        });
+    }
+
+    function openNewWindow() {
+        window.open('{{ url }}');
+    }
+</script>
+
+<html>
+    <link rel="stylesheet" href="{% static 'ttt/css/email_verification.css' %}">
+
+    <a href="some_page">This is a regular link</a>
+
+    <input type="button" onclick="sendRequest()" value="This is a link that sends a POST request to verify email." class="link-button">
+</html>

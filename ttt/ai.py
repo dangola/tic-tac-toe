@@ -26,9 +26,9 @@ def ai_response(request):
             return grid[2]
         return ' '
 
-    data = json.loads(request.body.decode('utf-8'))
-    grid = data['grid']
-    move = data['move']
+    body = json.loads(request.body.decode('utf-8'))
+    grid = body['grid']
+    move = body['move']
 
     response = {}
     response['grid'] = grid
