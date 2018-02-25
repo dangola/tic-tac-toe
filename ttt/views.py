@@ -1,3 +1,4 @@
+from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
@@ -36,7 +37,16 @@ def adduser(request):
             account = form.save(commit=False)
             account.verified = True
             account.save()
+            send_mail(
+                'Subject Here',
+                'key word abracadabra',
+                'from@example.com',
+                [account.email],
+                fail_silently=False
+            )
             return HttpResponse('account made')
+        else:
+            return HttpResponse('email already in use')
     else:
         signupform = SignupForm()
         loginform = LoginForm()
