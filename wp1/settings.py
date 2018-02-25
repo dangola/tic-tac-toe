@@ -19,6 +19,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'd$6sff!l@z%8&ye#u=h-*cj5iz5y(dq29g@uyr7$h$5_&=2+hg'
 
@@ -135,5 +137,6 @@ EMAIL_PORT = 25
 EMAIL_USER = 'test'
 EMAIL_PASS = 'test'
 
+LOGIN_REDIRECT_URL = 'login'
 LOGIN_REDIRECT_URL = 'login'
     

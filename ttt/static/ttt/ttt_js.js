@@ -1,4 +1,3 @@
-
 const PLAYER_ICON = 'X';
 var grid = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '];
 var winner = ' ';
@@ -25,6 +24,7 @@ function csrfSafeMethod(method) {
     // these HTTP methods do not require CSRF protection
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
 }
+
 $.ajaxSetup({
     beforeSend: function(xhr, settings) {
         if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
@@ -94,4 +94,17 @@ function reset() {
     document.getElementById('reset_button').style.visibility = "hidden";
     document.getElementById('winner').style.visibility = "hidden";
     document.getElementById('score').style.visibility = "hidden";
+}
+
+function logout() {
+  $.ajax({
+    type: "POST",
+    url: logoutUrl,
+    data: JSON.stringify({ username: username }),
+    success: function(data, textStatus, XmlHttpRequest) {
+      username = username
+      $('html').html(data);
+    },
+    traditional: true
+  });
 }

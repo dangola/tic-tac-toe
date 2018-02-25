@@ -6,7 +6,11 @@
     <title>tic. tac. toe.</title>
     <link rel="stylesheet" href="{% static 'ttt/ttt_style.css' %}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-    <script> var djangoUrl = "{% url 'play' %}" </script>
+    <script> 
+      var djangoUrl = "{% url 'play' %}" 
+      var logoutUrl = "{% url 'logout' %}"
+      var username = "{{ username }}"
+    </script>
     <script src="{% static 'ttt/ttt_js.js' %}"></script>
   </head>
   <body>
@@ -30,7 +34,7 @@
         </tr>
       </tbody>
     </table>
-    <button id="logout">Logout</button>
+    <button id="logout" onclick="logout()">Logout</button>
     <button id="reset_button" onclick="reset()"> Play again! </button>
     <div id="winner"></div>
     <div id="score">human: $wins, wopr: $loss, tie: $tie</div>

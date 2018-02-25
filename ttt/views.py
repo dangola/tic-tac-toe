@@ -11,7 +11,7 @@ from .forms import SignupForm
 from .forms import LoginForm
 from .ai import ai_response
 from .models import User
-
+from django.template import RequestContext
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -50,35 +50,41 @@ def adduser(request):
                 return HttpResponse('account made')
             else:
                 return HttpResponse('email already in use')
-                # separate login and registration
-        elif 'login-form' in request.POST:
-            login(request)
     else:
         signupform = SignupForm()
         return render(request, 'ttt/register.html', {'signupform': signupform})
 
 def login(request):
     # use built-in authenticator and user models
-    if 'login-form' in request.POST:
-        username = request.POST['username']
-        password = request.POST['password']
-        context = {
-            'username': username,
-            'password': password
-        }
+    if request.method == 'POST':
+        login_form = LoginForm(request.POST)
+        if login_form.is_valid():
+            username = login_form.cleaned_data['username']
+            password = login_form.cleaned_data['password']
+            request.session['username'] = username
+        
         if User.objects.filter(username=username).exists():
             user = User.objects.get(username=username)
             if user.password == password:
+                context = { 
+                    "username": username, 
+                    "password": password
+                }
                 template = loader.get_template('ttt/play.html')
-                response = HttpResponse(template.render(context, request))
-                response.set_cookie(username+password)
+
+                response = render(request, 'ttt/play.html', {"username" : username})
+                response.set_cookie('username', username)
+        
                 return response
-            else:
-                return redirect('/login')
-        else:
-            return redirect('/login')
-    elif 'register-form' in request.POST:
-        adduser(request)
-    else:
-        loginform = LoginForm()
-        return render(request, 'ttt/login.html', {'loginform': loginform})
+
+    if 'username' in request.session:
+        return render(request, 'ttt/play.html', {"username" : request.session['username']})
+
+    loginform = LoginForm()
+    return render(request, 'ttt/login.html', {'loginform': loginform})
+
+
+def logout(request):
+    del request.session['username']
+    loginform = LoginForm()
+    return render(request, 'ttt/login.html', {'loginform': loginform})
