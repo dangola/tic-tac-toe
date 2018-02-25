@@ -17,9 +17,10 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic.base import TemplateView
 
 urlpatterns = [
+    url(r'^', include('ttt.urls')),
     url(r'^ttt/', include('ttt.urls')),
     url(r'^admin/', admin.site.urls),
-    url(r'^', include('ttt.urls')),
 ]

@@ -131,3 +131,5 @@ REST_FRAMEWORK = {
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_PATH = 'tmp/emails'
+
+LOGIN_REDIRECT_URL = 'adduser'

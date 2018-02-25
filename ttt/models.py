@@ -3,7 +3,7 @@ from . import fields
 
 
 class User(models.Model):
-    username = models.CharField(max_length=200)
+    username = models.CharField(max_length=200, unique=True)
     password = models.CharField(max_length=200)
     email = models.CharField(max_length=256, unique=True)
     verified = models.BooleanField(default=False)

@@ -1,5 +1,6 @@
 from django.core.mail import send_mail
-from django.shortcuts import get_object_or_404, render
+from django.contrib.auth import authenticate, login
+from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
@@ -9,6 +10,7 @@ from .forms import NameForm
 from .forms import SignupForm
 from .forms import LoginForm
 from .ai import ai_response
+from .models import User
 
 
 @csrf_exempt
@@ -33,21 +35,30 @@ def index(request):
 def adduser(request):
     if request.method == 'POST':
         form = SignupForm(request.POST)
-        if form.is_valid():
-            account = form.save(commit=False)
-            account.verified = True
-            account.save()
-            send_mail(
-                'Subject Here',
-                'key word abracadabra',
-                'from@example.com',
-                [account.email],
-                fail_silently=False
-            )
-            return HttpResponse('account made')
-        else:
-            return HttpResponse('email already in use')
+        if 'register-form' in request.POST:
+            if form.is_valid():
+                account = form.save(commit=False)
+                account.verified = True
+                account.save()
+                send_mail(
+                    'Subject Here',
+                    'key word abracadabra',
+                    'from@example.com',
+                    [account.email],
+                    fail_silently=False
+                )
+                return HttpResponse('account made')
+            else:
+                return HttpResponse('email already in use')
+        elif 'login-form' in request.POST:
+            username = request.POST['username']
+            password = request.POST['password']
+            user = User.objects.get(username=username)
+            if user.password == password:
+                return redirect('index')
+            else:
+                return redirect('adduser')
     else:
         signupform = SignupForm()
         loginform = LoginForm()
-        return render(request, 'ttt/login.html', {'signupform': signupform, 'loginform': loginform})
+        return render(request, 'ttt/login.html', {'signupform': signupform, 'loginform': loginform})    
