@@ -1,7 +1,6 @@
 from django import forms
 from .models import User
 
-
 class NameForm(forms.Form):
 	name = forms.CharField(label='Name', max_length=100)
 
