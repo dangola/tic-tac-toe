@@ -130,6 +130,10 @@ REST_FRAMEWORK = {
 }
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_PATH = 'tmp/emails'
+# EMAIL_HOST = 'test.cloud.compas.cs.stonybrook.edu'
+EMAIL_PORT = 25
+EMAIL_USER = 'test'
+EMAIL_PASS = 'test'
 
-LOGIN_REDIRECT_URL = 'adduser'
+LOGIN_REDIRECT_URL = 'login'
+    

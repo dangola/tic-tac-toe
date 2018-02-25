@@ -1,5 +1,5 @@
 from django.core.mail import send_mail
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
@@ -50,15 +50,35 @@ def adduser(request):
                 return HttpResponse('account made')
             else:
                 return HttpResponse('email already in use')
+                # separate login and registration
         elif 'login-form' in request.POST:
-            username = request.POST['username']
-            password = request.POST['password']
-            user = User.objects.get(username=username)
-            if user.password == password:
-                return redirect('index')
-            else:
-                return redirect('adduser')
+            login(request)
     else:
         signupform = SignupForm()
+        return render(request, 'ttt/register.html', {'signupform': signupform})
+
+def login(request):
+    # use built-in authenticator and user models
+    if 'login-form' in request.POST:
+        username = request.POST['username']
+        password = request.POST['password']
+        context = {
+            'username': username,
+            'password': password
+        }
+        if User.objects.filter(username=username).exists():
+            user = User.objects.get(username=username)
+            if user.password == password:
+                template = loader.get_template('ttt/play.html')
+                response = HttpResponse(template.render(context, request))
+                response.set_cookie(username+password)
+                return response
+            else:
+                return redirect('/login')
+        else:
+            return redirect('/login')
+    elif 'register-form' in request.POST:
+        adduser(request)
+    else:
         loginform = LoginForm()
-        return render(request, 'ttt/login.html', {'signupform': signupform, 'loginform': loginform})    
+        return render(request, 'ttt/login.html', {'loginform': loginform})
