@@ -3,27 +3,26 @@
 
 <html>
     <head>
-        <link rel="stylesheet" href="{% static 'ttt/ttt_style.css' %}">
-       <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-       <script>
-            var verifyUrl = "{% url 'index' %}" 
-            var username = "{{ username }}" 
-            var password = "{{ password }}"
-            var email = "{{ email }}"
-        </script>
-        <script src="{% static 'ttt/email.js' %}"></script>
-        -->
+        <link rel="stylesheet" href="{% static 'ttt/login.css' %}">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     </head>
     <body>
-    <form method="POST">
-        {% csrf_token %}
-        {{ signupform }}
-        <input type="submit" value="Sign Up" />
-    </form>
-    <form method="POST">
-        {% csrf_token %}
-        {{ loginform }}
-        <input type="submit" value="Login" />
-    </form>
+        <div class="login-page">
+            <div class="form">
+                <form class="register-form" method="POST">
+                    {% csrf_token %}
+                    {{ signupform }}
+                    <button type="submit">Sign Up</button>
+                    <p class="message">Already registered? <a href="#">Sign In</a></p>
+                </form>
+                <form class="login-form" method="POST">
+                    {% csrf_token %}
+                    {{ loginform }}
+                    <button type="submit">Login</button>
+                    <p class="message">Not registered? <a href="#">Create an account</a></p>
+                </form>
+            </div>
+        </div>
+        <script src="{% static 'ttt/login.js' %}"></script>
     </body>
 </html>
