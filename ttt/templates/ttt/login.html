@@ -1,0 +1,29 @@
+{% load rest_framework %}
+{% load static %}
+
+<html>
+    <head>
+        <link rel="stylesheet" href="{% static 'ttt/ttt_style.css' %}">
+       <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+       <script>
+            var verifyUrl = "{% url 'index' %}" 
+            var username = "{{ username }}" 
+            var password = "{{ password }}"
+            var email = "{{ email }}"
+        </script>
+        <script src="{% static 'ttt/email.js' %}"></script>
+        -->
+    </head>
+    <body>
+    <form method="POST">
+        {% csrf_token %}
+        {{ signupform }}
+        <input type="submit" value="Sign Up" />
+    </form>
+    <form method="POST">
+        {% csrf_token %}
+        {{ loginform }}
+        <input type="submit" value="Login" />
+    </form>
+    </body>
+</html>
