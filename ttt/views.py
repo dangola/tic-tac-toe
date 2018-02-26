@@ -57,6 +57,7 @@ def index(request):
         return render(request, 'ttt/index.html', {'form': form})
 
 
+@csrf_exempt
 def adduser(request):
     if request.method == 'POST':
         form = SignupForm(request.POST)
@@ -80,6 +81,7 @@ def adduser(request):
         return render(request, 'ttt/register.html', {'signupform': signupform})
 
 
+@csrf_exempt
 def login(request):
     # use built-in authenticator and user models
     if request.method == 'POST':
@@ -119,10 +121,12 @@ def login(request):
     return render(request, 'ttt/login.html', {'loginform': loginform})
 
 
+@csrf_exempt
 def lastplayed(user):
     return Game.objects.filter(user_id=user.id).order_by('-id')[0]
 
 
+@csrf_exempt
 def logout(request):
     request.session.clear()
     loginform = LoginForm()
@@ -153,6 +157,7 @@ def verify(request):
     return render(request, 'ttt/email_verification.html', {'url': '/ttt/verify', 'email': 'admin@example.com', 'key': 'abracadabra'})
 
 
+@csrf_exempt
 def listgames(request):
     response = {}
     response['status'] = 'OK'
