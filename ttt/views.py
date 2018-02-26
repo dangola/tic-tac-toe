@@ -128,12 +128,14 @@ def login(request):
                 if user.verified is True:
                     grid = lastplayed(user)
                     print (grid)
-                    response = render(request, 'ttt/play.html', {'username': username, 'grid': grid})
-                    response.set_cookie('username', user.username)
-                    request.session['username'] = username
-                    return response
+                    response = {}
+                    # response['html'] = render(request, 'ttt/play.html', {'username': username, 'grid': grid})
+                    response['status'] = 'OK'
+                    # response.set_cookie('username', user.username)
+                    # request.session['username'] = username
+                    return HttpResponse(json.dumps(response), content_type='application/json')
                 else:
-                    return HttpResponse('user not verified')
+                    return JsonResponse({'status': 'ERROR'})
 
     if 'username' in request.session and request.session['username']:
         if User.objects.filter(username=request.session['username']).exists():
