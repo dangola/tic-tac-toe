@@ -10,7 +10,7 @@
       var djangoUrl = "{% url 'play' %}" 
       var logoutUrl = "{% url 'logout' %}"
       var username = "{{ username }}"
-      var grid = {{ grid|safe }}
+      var grid = {{ grid }}
     </script>
     <script src="{% static 'ttt/js/play.js' %}"></script>
   </head>

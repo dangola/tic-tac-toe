@@ -130,7 +130,7 @@ def login(request):
                     response = render(request, 'ttt/play.html', {'username': username, 'grid': grid})
                     response.set_cookie('username', user.username)
                     request.session['username'] = username
-                    return JsonResponse(response)
+                    return response
                 else:
                     return HttpResponse('user not verified')
 
