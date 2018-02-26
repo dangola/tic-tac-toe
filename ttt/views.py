@@ -9,13 +9,35 @@ from .forms import SignupForm
 from .forms import LoginForm
 from .ai import ai_response
 from .models import User
-import json
+from .models import Game
+import json, copy
 
 
 @csrf_exempt
 @require_http_methods(["POST"])
 def play(request):
     response = ai_response(request)
+
+    # if id exists, update game
+    # else, create new game
+
+    # if has winner, remove from session
+
+    if 'game_id' in request.session:
+        game_id = request.session['game_id']
+        game = Game.objects.get(id=game_id)
+        game.grid = json.dumps(response['grid'])
+        game.save()
+    else:
+        user = User.objects.get(username=request.session['username'])
+
+        game = Game(user_id=user.id, grid=json.dumps(response['grid']))
+        game.save()
+        request.session['game_id'] = game.id
+
+    if response['winner'] != ' ' or ' ' in response['grid']:
+        game.winner = response['winner']
+
     return JsonResponse(response)
 
 
@@ -66,21 +88,28 @@ def login(request):
         if User.objects.filter(username=username).exists():
             user = User.objects.get(username=username)
             if user.password == password:
-                response = render(request, 'ttt/play.html', {"username": username})
+                grid = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '];
+                response = render(request, 'ttt/play.html', {'username': username, 'grid': grid})
                 response.set_cookie('username', username)
                 request.session['username'] = username
 
                 return response
 
     if 'username' in request.session:
-        return render(request, 'ttt/play.html', {"username": request.session['username']})
+        if 'game_id' in request.session and request.session['game_id'] != None:
+            game = Game.objects.get(id=request.session['game_id'])
+            grid = json.loads(game.grid)
+        else:
+            grid = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '];
+
+        return render(request, 'ttt/play.html', {"username": request.session['username'], 'grid': grid})
 
     loginform = LoginForm()
     return render(request, 'ttt/login.html', {'loginform': loginform})
 
 
 def logout(request):
-    del request.session['username']
+    request.session.clear()
     loginform = LoginForm()
     return render(request, 'ttt/login.html', {'loginform': loginform})
 
@@ -101,10 +130,22 @@ def verify(request):
                 message = 'Your account has been verified.'
             else:
                 message = 'Verification key is wrong.'
-            print ("Before returning")
 
             html = loader.render_to_string('ttt/verify.html', {'message': message})
             return HttpResponse(html)
         except User.DoesNotExist:
             return HttpResponseNotFound('<h1>Page not found</h1>')
     return render(request, 'ttt/email_verification.html', {'url': '/ttt/verify', 'email': 'admin@example.com', 'key': 'abracadabra'})
+
+
+def listgames(request):
+    if 'username' in request.session:
+        return
+
+
+def getgame(request):
+    return
+
+
+def getscore(request):
+    return

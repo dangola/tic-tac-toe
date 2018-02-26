@@ -1,5 +1,6 @@
 from django.db import models
 from . import fields
+import datetime
 
 
 class User(models.Model):
@@ -14,9 +15,9 @@ class User(models.Model):
 
 class Game(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    start_date = models.DateTimeField()
-    grid = fields.ListField()
-    winner = models.CharField(max_length=1)
+    start_date = models.DateTimeField(auto_now_add=True)
+    grid = models.TextField()
+    winner = models.CharField(max_length=1, default=' ')
 
     def __str__(self):
         return self.grid

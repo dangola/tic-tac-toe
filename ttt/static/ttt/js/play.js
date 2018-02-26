@@ -1,5 +1,4 @@
 const PLAYER_ICON = 'X';
-var grid = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '];
 var winner = ' ';
 
 // using jQuery
@@ -108,3 +107,7 @@ function logout() {
     traditional: true
   });
 }
+
+$(document).ready(function() {
+  render(grid);
+})

@@ -4,14 +4,15 @@
 <html>
   <head>
     <title>tic. tac. toe.</title>
-    <link rel="stylesheet" href="{% static 'ttt/css/ttt_style.css' %}">
+    <link rel="stylesheet" href="{% static 'ttt/css/play.css' %}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script> 
       var djangoUrl = "{% url 'play' %}" 
       var logoutUrl = "{% url 'logout' %}"
       var username = "{{ username }}"
+      var grid = {{ grid|safe }}
     </script>
-    <script src="{% static 'ttt/js/ttt_js.js' %}"></script>
+    <script src="{% static 'ttt/js/play.js' %}"></script>
   </head>
   <body>
     <div id="name">Hello {{ username }}, It is {% now "jS F Y H:i" %}</div>
