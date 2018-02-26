@@ -61,21 +61,39 @@ def index(request):
 def adduser(request):
     if request.method == 'POST':
         form = SignupForm(request.POST)
-        if 'register-form' in request.POST:
-            if form.is_valid():
-                account = form.save()
-                msg_html = loader.render_to_string('ttt/email_verification.html', {'url': '/ttt/verify', 'email': account.email, 'key': 'abracadabra'})
+        if form.is_valid():
+            account = form.save()
+            msg_html = loader.render_to_string('ttt/email_verification.html', {'url': '/ttt/verify', 'email': account.email, 'key': 'abracadabra'})
+            send_mail(
+                'Subject Here',
+                msg_html,
+                'auto_generated@wer.cloud.compas.stonybrook.edu',
+                [account.email],
+                html_message=msg_html,
+                fail_silently=False
+            )
+            return HttpResponse('Account made')
+        else:
+            body = json.loads(request.body.decode('utf-8'))
+            username = body['username']
+            password = body['password']
+            email = body['email']
+            if User.objects.filter(username=username).exists() or User.objects.filter(email=email).exists():
+                response = {'status': 'ERROR'}
+                return JsonResponse(response)
+            else:
+                user = User(username=username, password=password, email=email)
+                user.save()
+                msg_html = loader.render_to_string('ttt/email_verification.html', {'url': '/ttt/verify', 'email': email, 'key': 'abracadabra'})
                 send_mail(
                     'Subject Here',
                     msg_html,
                     'auto_generated@wer.cloud.compas.stonybrook.edu',
-                    [account.email],
+                    [email],
                     html_message=msg_html,
                     fail_silently=False
                 )
                 return HttpResponse('Account made')
-            else:
-                return HttpResponse('Email already in use')
     else:
         signupform = SignupForm()
         return render(request, 'ttt/register.html', {'signupform': signupform})
