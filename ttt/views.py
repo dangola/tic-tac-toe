@@ -23,7 +23,7 @@ def play(request):
 
     # if has winner, remove from session
 
-    if 'game_id' in request.session and request.session['game_id'] != None:
+    if 'game_id' in request.session and request.session['game_id'] is not None:
         game_id = request.session['game_id']
         game = Game.objects.get(id=game_id)
         game.grid = json.dumps(response['grid'])
@@ -119,8 +119,9 @@ def login(request):
                     user = User.objects.get(username=username)
                     grid = lastplayed(user)
                     request.session['username'] = username
-                    response = render(request, 'ttt/play.html', {'username': request.COOKIES['username'], 'grid': str(grid)})
-                    return response
+                    # response = render(request, 'ttt/play.html', {'username': request.COOKIES['username'], 'grid': str(grid)})
+                    # return response
+                    return JsonResponse({'status': 'OK'})
 
         if User.objects.filter(username=username).exists():
             user = User.objects.get(username=username)
@@ -141,10 +142,12 @@ def login(request):
         if User.objects.filter(username=request.session['username']).exists():
             user = User.objects.get(username=request.session['username'])
             grid = lastplayed(user)
-        return render(request, 'ttt/play.html', {'username': user.username, 'grid': grid})
+        # return render(request, 'ttt/play.html', {'username': user.username, 'grid': grid})
+        return JsonResponse()
 
     loginform = LoginForm()
-    return render(request, 'ttt/login.html', {'loginform': loginform})
+    # return render(request, 'ttt/login.html', {'loginform': loginform})
+    return JsonResponse({'status': 'OK'})
 
 
 @csrf_exempt
@@ -159,8 +162,9 @@ def lastplayed(user):
 @csrf_exempt
 def logout(request):
     request.session.clear()
-    loginform = LoginForm()
-    return render(request, 'ttt/login.html', {'loginform': loginform})
+    # loginform = LoginForm()
+    # return render(request, 'ttt/login.html', {'loginform': loginform})
+    return JsonResponse({'status': 'OK'})
 
 
 @csrf_exempt
