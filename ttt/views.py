@@ -93,7 +93,8 @@ def adduser(request):
                     html_message=msg_html,
                     fail_silently=False
                 )
-                return HttpResponse('Account made')
+                response = {'status': 'OK'}
+                return JsonResponse(response)
     else:
         signupform = SignupForm()
         return render(request, 'ttt/register.html', {'signupform': signupform})
@@ -160,18 +161,19 @@ def verify(request):
             key = body['key']
 
             if user.verified:
-                message = 'Account already verified.'
+                response = {'status': 'ERROR'}
             elif key == 'abracadabra':
                 user.verified = True
                 user.save()
-                message = 'Your account has been verified.'
+                response = {'status': 'OK'}
             else:
-                message = 'Verification key is wrong.'
+                response = {'status': 'ERROR'}
 
-            html = loader.render_to_string('ttt/verify.html', {'message': message})
-            return HttpResponse(html)
+            # html = loader.render_to_string('ttt/verify.html', {'message': message})
+            return JsonResponse(response)
         except User.DoesNotExist:
-            return HttpResponseNotFound('<h1>Page not found</h1>')
+            response = {'status': 'ERROR'}
+            return JsonResponse(response)
     return render(request, 'ttt/email_verification.html', {'url': '/ttt/verify', 'email': 'admin@example.com', 'key': 'abracadabra'})
 
 
@@ -210,7 +212,7 @@ def getgame(request):
                 raise User.DoesNotMatch
             return JsonResponse(response)
         except (Game.DoesNotExist, User.DoesNotMatch):
-            response = { 'status': 'ERROR' } 
+            response = {'status': 'ERROR'}
             return JsonResponse(response)
     return HttpResponseNotFound('<h1>Page not found</h1>')
 
