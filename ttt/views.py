@@ -144,7 +144,8 @@ def verify(request):
 def listgames(request):
     response = {}
     response['status'] = 'OK'
-    games = Game.objects.all()
+    user = User.objects.get(username=request.session['username'])
+    games = Game.objects.filter(user_id=user.id)
     games_data = []
     for item in games:
         game = {
@@ -163,21 +164,25 @@ def getgame(request):
             body = json.loads(request.body.decode('utf-8'))
             game_id = body['id']
             game = Game.objects.get(id=game_id)
-            response = {}
-            response['status'] = 'OK'
-            response['grid'] = game.grid
-            response['winner'] = game.winner
+            user = User.objects.get(username=request.session['username'])
+            if user.id == game.user_id:
+                response = {}
+                response['status'] = 'OK'
+                response['grid'] = game.grid
+                response['winner'] = game.winner
+            else:
+                raise User.DoesNotMatch
             return JsonResponse(response)
-        except Game.DoesNotExist:
-            response = { 'status': 'ERROR'}
+        except (Game.DoesNotExist, User.DoesNotMatch):
+            response = { 'status': 'ERROR' } 
             return JsonResponse(response)
     return HttpResponseNotFound('<h1>Page not found</h1>')
 
 
 @csrf_exempt
-@require_http_methods(["POST"])
 def getscore(request):
-    win, lose, tie = Game.get_score()
+    user = User.objects.get(username=request.session['username'])
+    win, lose, tie = Game.get_score(user)
     response = {}
     response['status'] = 'OK'
     response['human'] = win
