@@ -10,7 +10,7 @@ from .forms import LoginForm
 from .ai import ai_response
 from .models import User
 from .models import Game
-import json, copy
+import json
 
 
 @csrf_exempt
@@ -38,6 +38,8 @@ def play(request):
         game.winner = response['winner']
         game.save()
         del request.session['game_id']
+
+    print(request.user.id)
 
     return JsonResponse(response)
 
@@ -86,29 +88,39 @@ def login(request):
             username = login_form.cleaned_data['username']
             password = login_form.cleaned_data['password']
 
+        if 'username' in request.COOKIES and request.COOKIES['username']:
+            if request.COOKIES['username'] == username:
+                if User.objects.filter(username=username).exists():
+                    user = User.objects.get(username=username)
+                    grid = lastplayed(user)
+                    request.session['username'] = username
+                    response = render(request, 'ttt/play.html', {'username': request.COOKIES['username'], 'grid': grid})
+                    return response
+
         if User.objects.filter(username=username).exists():
             user = User.objects.get(username=username)
             if user.password == password:
                 if user.verified == True:
-                    grid = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '];
+                    grid = lastplayed(user)
                     response = render(request, 'ttt/play.html', {'username': username, 'grid': grid})
-                    response.set_cookie('username', username)
+                    response.set_cookie('username', user.username)
                     request.session['username'] = username
                     return response
                 else:
                     return HttpResponse('user not verified')
 
-    if 'username' in request.session:
-        if 'game_id' in request.session and request.session['game_id'] != None:
-            game = Game.objects.get(id=request.session['game_id'])
-            grid = json.loads(game.grid)
-        else:
-            grid = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '];
-
-        return render(request, 'ttt/play.html', {"username": request.session['username'], 'grid': grid})
+    if 'username' in request.session and request.session['username']:
+        if User.objects.filter(username=request.session['username']).exists():
+            user = User.objects.get(username=request.session['username'])
+            grid = lastplayed(user)
+        return render(request, 'ttt/play.html', {'username': user.username, 'grid': grid})
 
     loginform = LoginForm()
     return render(request, 'ttt/login.html', {'loginform': loginform})
+
+
+def lastplayed(user):
+    return Game.objects.filter(user_id=user.id).order_by('-id')[0]
 
 
 def logout(request):
@@ -164,12 +176,13 @@ def getgame(request):
             body = json.loads(request.body.decode('utf-8'))
             game_id = body['id']
             game = Game.objects.get(id=game_id)
-            user = User.objects.get(username=request.session['username'])
-            if user.id == game.user_id:
-                response = {}
-                response['status'] = 'OK'
-                response['grid'] = game.grid
-                response['winner'] = game.winner
+            if request.session['username']:
+                user = User.objects.get(username=request.session['username'])
+                if user.id == game.user_id:
+                    response = {}
+                    response['status'] = 'OK'
+                    response['grid'] = game.grid
+                    response['winner'] = game.winner
             else:
                 raise User.DoesNotMatch
             return JsonResponse(response)
