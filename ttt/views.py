@@ -108,6 +108,10 @@ def login(request):
         if login_form.is_valid():
             username = login_form.cleaned_data['username']
             password = login_form.cleaned_data['password']
+        else:
+            body = json.loads(request.body.decode('utf-8'))
+            username = body['username']
+            password = body['password']
 
         if 'username' in request.COOKIES and request.COOKIES['username']:
             if request.COOKIES['username'] == username:
@@ -121,12 +125,12 @@ def login(request):
         if User.objects.filter(username=username).exists():
             user = User.objects.get(username=username)
             if user.password == password:
-                if user.verified == True:
+                if user.verified is True:
                     grid = lastplayed(user)
                     response = render(request, 'ttt/play.html', {'username': username, 'grid': grid})
                     response.set_cookie('username', user.username)
                     request.session['username'] = username
-                    return response
+                    return JsonResponse(response)
                 else:
                     return HttpResponse('user not verified')
 
@@ -142,7 +146,11 @@ def login(request):
 
 @csrf_exempt
 def lastplayed(user):
-    return Game.objects.filter(user_id=user.id).order_by('-id')[0]
+    if Game.objects.filter(user_id=user.id).exists():
+        return Game.objects.filter(user_id=user.id).order_by('-id')[0]
+
+    else:
+        return [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
 
 
 @csrf_exempt
