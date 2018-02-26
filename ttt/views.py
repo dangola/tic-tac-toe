@@ -23,20 +23,21 @@ def play(request):
 
     # if has winner, remove from session
 
-    if 'game_id' in request.session:
+    if 'game_id' in request.session and request.session['game_id'] != None:
         game_id = request.session['game_id']
         game = Game.objects.get(id=game_id)
         game.grid = json.dumps(response['grid'])
         game.save()
     else:
         user = User.objects.get(username=request.session['username'])
-
         game = Game(user_id=user.id, grid=json.dumps(response['grid']))
         game.save()
         request.session['game_id'] = game.id
 
-    if response['winner'] != ' ' or ' ' in response['grid']:
+    if response['winner'] != ' ' or ' ' not in response['grid']:
         game.winner = response['winner']
+        game.save()
+        del request.session['game_id']
 
     return JsonResponse(response)
 
@@ -88,12 +89,14 @@ def login(request):
         if User.objects.filter(username=username).exists():
             user = User.objects.get(username=username)
             if user.password == password:
-                grid = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '];
-                response = render(request, 'ttt/play.html', {'username': username, 'grid': grid})
-                response.set_cookie('username', username)
-                request.session['username'] = username
-
-                return response
+                if user.verified == True:
+                    grid = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '];
+                    response = render(request, 'ttt/play.html', {'username': username, 'grid': grid})
+                    response.set_cookie('username', username)
+                    request.session['username'] = username
+                    return response
+                else:
+                    return HttpResponse('user not verified')
 
     if 'username' in request.session:
         if 'game_id' in request.session and request.session['game_id'] != None:
@@ -139,13 +142,45 @@ def verify(request):
 
 
 def listgames(request):
-    if 'username' in request.session:
-        return
+    response = {}
+    response['status'] = 'OK'
+    games = Game.objects.all()
+    games_data = []
+    for item in games:
+        game = {
+            'id': item.id,
+            'start_date': item.start_date
+        }
+        games_data.append(game)
+    response['games'] = games_data
+    return JsonResponse(response)
 
 
+@csrf_exempt
 def getgame(request):
-    return
+    if request.method == 'POST':
+        try:
+            body = json.loads(request.body.decode('utf-8'))
+            game_id = body['id']
+            game = Game.objects.get(id=game_id)
+            response = {}
+            response['status'] = 'OK'
+            response['grid'] = game.grid
+            response['winner'] = game.winner
+            return JsonResponse(response)
+        except Game.DoesNotExist:
+            response = { 'status': 'ERROR'}
+            return JsonResponse(response)
+    return HttpResponseNotFound('<h1>Page not found</h1>')
 
 
+@csrf_exempt
+@require_http_methods(["POST"])
 def getscore(request):
-    return
+    win, lose, tie = Game.get_score()
+    response = {}
+    response['status'] = 'OK'
+    response['human'] = win
+    response['wopr'] = lose
+    response['tie'] = tie
+    return JsonResponse(response)

@@ -25,9 +25,8 @@ class Game(models.Model):
     def has_winner(self):
         return self.winner != ' ' or ' ' not in self.grid
 
-    def get_score(username):
-        user = User.objects.get(username=username)
-        query_set = Game.objects.filter(user=user)
+    def get_score():
+        query_set = Game.objects.all()
 
         win_count = 0
         lose_count = 0
@@ -40,3 +39,5 @@ class Game(models.Model):
             elif game.winner == ' ' and ' ' not in game.grid:
                 tie_count += 1
         return win_count, lose_count, tie_count
+
+

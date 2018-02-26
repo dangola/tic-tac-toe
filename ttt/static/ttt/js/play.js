@@ -73,7 +73,6 @@ function render(grid) {
       document.getElementById('winner').innerHTML = winner + " won!";
       document.getElementById('winner').style.visibility = "visible";
       document.getElementById('reset_button').style.visibility = "visible";
-      document.getElementById('score').style.visibility = "visible";
     }
     else if (contains(grid, ' ')) {
       ;
@@ -82,7 +81,6 @@ function render(grid) {
       document.getElementById('winner').innerHTML = "It was a draw! Nobody won.";
       document.getElementById('winner').style.visibility = "visible";
       document.getElementById('reset_button').style.visibility = "visible";
-      document.getElementById('score').style.visibility = "visible";
     }
 }
 
@@ -92,7 +90,6 @@ function reset() {
     render(grid);
     document.getElementById('reset_button').style.visibility = "hidden";
     document.getElementById('winner').style.visibility = "hidden";
-    document.getElementById('score').style.visibility = "hidden";
 }
 
 function logout() {

@@ -2,10 +2,6 @@
   font-size: 16pt;
 }
 
-#score {
-  visibility: hidden;
-}
-
 #winner {
   visibility: hidden;
 }
