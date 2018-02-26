@@ -119,7 +119,7 @@ def login(request):
                     user = User.objects.get(username=username)
                     grid = lastplayed(user)
                     request.session['username'] = username
-                    response = render(request, 'ttt/play.html', {'username': request.COOKIES['username'], 'grid': grid})
+                    response = render(request, 'ttt/play.html', {'username': request.COOKIES['username'], 'grid': str(grid)})
                     return response
 
         if User.objects.filter(username=username).exists():
@@ -127,6 +127,7 @@ def login(request):
             if user.password == password:
                 if user.verified is True:
                     grid = lastplayed(user)
+                    print (grid)
                     response = render(request, 'ttt/play.html', {'username': username, 'grid': grid})
                     response.set_cookie('username', user.username)
                     request.session['username'] = username

@@ -6,11 +6,11 @@
     <title>tic. tac. toe.</title>
     <link rel="stylesheet" href="{% static 'ttt/css/play.css' %}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-    <script> 
-      var djangoUrl = "{% url 'play' %}" 
+    <script>
+      var djangoUrl = "{% url 'play' %}"
       var logoutUrl = "{% url 'logout' %}"
       var username = "{{ username }}"
-      var grid = {{ grid }}
+      var grid = {% autoescape off %}{{ grid }}{% endautoescape %}
     </script>
     <script src="{% static 'ttt/js/play.js' %}"></script>
   </head>
