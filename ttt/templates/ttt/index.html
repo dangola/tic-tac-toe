@@ -1,15 +1,78 @@
-{% load rest_framework %}
 {% load static %}
 
-<html>
-    <head>
-        <link rel="stylesheet" href="{% static 'ttt/css/play.css' %}">
-    </head>
-    <body>
-    <form method="POST" action="">
-        {% csrf_token %}
-        {{ form }}
-        <input type="submit" value="Submit" />
-    </form>
-    </body>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'ttt/css/ttt_style.css' %}">
+    <title>tic.tac.toe.</title>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Content here -->
+      <div class="login-page page">
+          <div class="form">
+              <form class="login-form" method="POST">
+                  <input type="text" name="username" placeholder="username" />
+                  <input type="password" name="password" placeholder="password" />
+                  <button type="submit" name="login-form">Login</button>
+                  <p class="message">Not registered? <a class="signup-redirect">Create an account</a></p>
+              </form>
+          </div>
+      </div>
+
+      <div class="signup-page page">
+          <div class="form">
+              <form class="register-form" method="POST">
+                  <input type="text" name="username" placeholder="name"/>
+                  <input type="password" name="password" placeholder="password"/>
+                  <input type="text" name="email" placeholder="email address"/>
+                  <button type="submit" name="register-form">Sign Up</button>
+                  <p class="message">Already registered? <a class="login-redirect">Sign In</a></p>
+              </form>
+          </div>
+      </div>
+
+      <div class="play-page page">
+        <div id="name">Hello, it is {% now "jS F Y H:i" %}</div>
+        <table class="board">
+          <tbody>
+            <tr>
+              <td id="0"></td>
+              <td id="1"></td>
+              <td id="2"></td>
+            </tr>
+            <tr>
+              <td id="3"></td>
+              <td id="4"></td>
+              <td id="5"></td>
+            </tr>
+            <tr>
+              <td id="6"></td>
+              <td id="7"></td>
+              <td id="8"></td>
+            </tr>
+          </tbody>
+        </table>
+        <button class="logout">Logout</button>
+        <button class="endgame-dialogue"> Play again! </button>
+        <div class="endgame-dialogue"></div>
+      </div>
+      <div class="verify-page page">
+        <input class="verify" type="button" value="This is a link that sends a POST request to verify email.">
+      </div>
+    </div>
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="{% static 'ttt/js/ttt_script.js' %}"></script>
+  </body>
 </html>

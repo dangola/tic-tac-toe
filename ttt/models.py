@@ -1,6 +1,4 @@
 from django.db import models
-from . import fields
-import datetime
 
 
 class User(models.Model):
@@ -39,5 +37,3 @@ class Game(models.Model):
             elif game.winner == ' ' and ' ' not in game.grid:
                 tie_count += 1
         return win_count, lose_count, tie_count
-
-
