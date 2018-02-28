@@ -43,7 +43,6 @@ class Session(models.Model):
     grid = models.CharField(max_length=100, default=json.dumps([' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']))
     winner = models.CharField(max_length=1, default=' ')
     started = models.BooleanField(default=False)
-    username = models.CharField(max_length=200)
 
     def set_grid(self, grid):
         self.grid = json.dumps(grid)
