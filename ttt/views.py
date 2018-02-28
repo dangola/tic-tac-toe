@@ -85,6 +85,7 @@ def index(request):
     return render(request, 'ttt/index.html', {})
 
 
+@csrf_exempt
 @require_http_methods(["POST"])
 def adduser(request):
     body = json.loads(request.body.decode('utf-8'))
