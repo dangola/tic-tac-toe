@@ -106,6 +106,35 @@ $(function () {
       return false;
     });
 
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    var csrftoken = getCookie('csrftoken');
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+          if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+              xhr.setRequestHeader("X-CSRFToken", csrftoken);
+          }
+      }
+    });
+
     function renderLoginPage() {
       $('.container .page').hide();
       $('.login-page').show();
@@ -136,7 +165,7 @@ $(function () {
       if (winner != ' ')
         $('div.endgame-dialogue').html(winner + ' won!');
       else
-        $('div.endgame-dialogue').html('It was a draw!');
+        $('div.endgame-dialogue').html('Nobody won. It was a draw!');
       $('.endgame-dialogue').show();
     }
 
@@ -163,13 +192,15 @@ $(function () {
       if (document.getElementById(id).innerHTML.trim() != "" || winner != ' ') {;}   // Ignore if grid box contains a move or if winner is decided
       else {
         grid[id] = PLAYER_ICON;
-        move = id;
+
+        var arr = { move: id };
         document.getElementById(id).innerHTML = PLAYER_ICON;
 
         $.ajax({
           type: "POST",
           url: '/ttt/play',
-          data: JSON.stringify({ grid:grid, move:move}),
+          contentType: 'application/json',
+          data: JSON.stringify(arr),
           success: function(data, textStatus, XmlHttpRequest) {
             grid = data.grid
             winner = data.winner
@@ -182,4 +213,12 @@ $(function () {
         });
       }
     };
+
+    var sessionid = getCookie('sessionid')
+    if (sessionid == null) {
+      renderLoginPage();
+    }
+    else {
+      renderPlayPage();
+    }
 });
