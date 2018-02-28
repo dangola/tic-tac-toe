@@ -9,8 +9,12 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
+import logging
 import json
 import traceback
+
+
+logger = logging.getLogger(__name__)
 
 
 def getSessionData(request):
@@ -48,22 +52,28 @@ def play(request):
     body = json.loads(request.body.decode('utf-8'))
     response = {}
     move = json.loads(body['move'])
+    logger.info(move)
     print(move)
     username = request.session['username']
+    logger.info(username)
     print(username)
     user = User.objects.get(username=username)
 
     game_id = getSessionData(request)
     if game_id is not None:
         print('Resuming old session from game_id')
+        logger.info('Resuming old session from game_id')
+        logger.info(game_id)
         print(game_id)
         game = Game.objects.get(id=game_id)
         grid, game.winner = ai_response(game.get_grid(), move)
         game.set_grid(grid)
         game.save()
+        logger.info('saved game')
 
     else:
         print('Creating new game')
+        logger.info('Creating new game')
         game = Game(user=user)
         grid = game.get_grid()
         grid, game.winner = ai_response(grid, move)
@@ -72,12 +82,15 @@ def play(request):
         setSessionData(request, game.id)
         print(game.id)
         print(grid)
+        logger.info('saved game')
+        logger.info(game.id)
 
     response['grid'] = game.get_grid()
     response['winner'] = game.winner
     if game.has_winner():
+        logger.info('deleted session data after game end')
         deleteSessionData(request)
-
+        logger.info('success')
     return JsonResponse(response)
 
 
@@ -166,6 +179,8 @@ def verify_user(request):
 def listgames(request):
     response = {}
     response['status'] = 'OK'
+    logger.info(request.session['username'])
+    logger.info('listgame session username')
     user = User.objects.get(username=request.session['username'])
     games = Game.objects.filter(user=user)
     games_data = []

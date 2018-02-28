@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from .models import Game
 from .ai import ai_response
 import json
+from django.conf import settings
+from django.utils.module_loading import import_module
 
 
 class EmailTest(TestCase):
@@ -145,3 +147,22 @@ class PlayTest(TestCase):
         expected_winner = ' '
         self.assertEqual(grid, expected_grid)
         self.assertEqual(winner, expected_winner)
+
+
+class ListGamesTest(TestCase):
+    def setUp(self):
+        user = User(username='fred', password='flintstone', email='fredflintson@cartoon.network.com', is_active=True)
+        user.save()
+        game = Game(user=user)
+        game.save()
+        self.client = Client()
+        session = self.client.session
+        session.save()
+        print(session)
+        session['username'] = 'fred'
+        session.save()
+
+    def test_list_games(self):
+        response = self.client.post('/ttt/listgames')
+        self.assertEqual(response.json()['status'], 'OK')
+        print(response.json()['games'])
