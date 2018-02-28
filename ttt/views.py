@@ -7,12 +7,27 @@ from django.template import loader
 from .ai import ai_response
 from .models import User
 from .models import Game
+import json
 
 
 @csrf_exempt
 @api_view(['POST'])
 def play(request):
     response = ai_response(request)
+
+    if 'game_id' in request.session and request.session['game_id'] is not None:
+        game = Game.objects.get(id=request.session['game_id'])
+        game.grid = json.dumps(response['grid'])
+        game.winner = json.dumps(response['winner'])
+        game.save()
+    else:
+        user = User.objects.get(username=request.session['username'])
+        game = Game(user=user, grid=json.dumps(response['grid']), winner=json.dumps(response['winner']))
+        game.save()
+        request.session['game_id'] = game.id
+
+    if game.has_winner():
+        del request.session['game_id']
     return JsonResponse(response)
 
 
@@ -25,20 +40,15 @@ def index(request):
 @csrf_exempt
 @api_view(['POST'])
 def adduser(request):
-    print(request.data)
     username = request.data['username']
     password = request.data['password']
     email = request.data['email']
     if User.objects.filter(username=username).exists() or User.objects.filter(email=email).exists():
         return JsonResponse({'status': 'ERROR'})
     else:
-        print('Creating new user')
         user = User(username=username, password=password, email=email)
         user.save()
-        print('User created')
-        print(user)
         msg_html = loader.render_to_string('ttt/email_verification.html', {'url': '/ttt/verify', 'email': email, 'key': 'abracadabra'})
-        print('msg okay')
         send_mail(
             'Subject Here',
             msg_html,
@@ -47,9 +57,7 @@ def adduser(request):
             html_message=msg_html,
             fail_silently=False
         )
-        print('send mail okay')
-        response = {'status': 'OK'}
-        return JsonResponse(response)
+        return JsonResponse({'status': 'OK'})
 
 
 @csrf_exempt
@@ -77,27 +85,25 @@ def logout(request):
 @csrf_exempt
 @api_view(['POST'])
 def verify(request):
-    if request.method == 'POST':
-        response = {}
-        try:
-            email = request.data['email']
-            key = request.data['key']
-            user = User.objects.get(email=email)
+    response = {}
+    try:
+        email = request.data['email']
+        key = request.data['key']
+        user = User.objects.get(email=email)
 
-            if user.verified:
-                response = {'status': 'OK'}
-            elif key == 'abracadabra':
-                user.verified = True
-                user.save()
-                response = {'status': 'OK'}
-            else:
-                response = {'status': 'ERROR'}
-
-            return JsonResponse(response)
-        except User.DoesNotExist:
+        if user.verified:
+            response = {'status': 'OK'}
+        elif key == 'abracadabra':
+            user.verified = True
+            user.save()
+            response = {'status': 'OK'}
+        else:
             response = {'status': 'ERROR'}
-            return JsonResponse(response)
-    return render(request, 'ttt/email_verification.html', {'url': '/ttt/verify', 'email': 'admin@example.com', 'key': 'abracadabra'})
+
+        return JsonResponse(response)
+    except User.DoesNotExist:
+        response = {'status': 'ERROR'}
+        return JsonResponse(response)
 
 
 @csrf_exempt
