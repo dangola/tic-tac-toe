@@ -60,6 +60,7 @@ def login(request):
     try:
         user = User.objects.get(username=username)
         if user.password == password and user.verified is True:
+            request.session['username'] = username
             return JsonResponse({'status': 'OK'})
     except User.DoesNotExist:
         return JsonResponse({'status': 'ERROR'})
@@ -69,6 +70,7 @@ def login(request):
 @csrf_exempt
 @api_view(['POST'])
 def logout(request):
+    request.session.clear()
     return JsonResponse({'status': 'OK'})
 
 
