@@ -12,6 +12,7 @@ from django.views.decorators.http import require_http_methods
 import logging
 import json
 import traceback
+import datetime
 
 
 logger = logging.getLogger(__name__)
@@ -51,46 +52,36 @@ def deleteSessionData(request):
 def play(request):
     body = json.loads(request.body.decode('utf-8'))
     response = {}
-    move = json.loads(body['move'])
-    logger.info(move)
-    print(move)
-    username = request.session['username']
-    logger.info(username)
-    print(username)
-    user = User.objects.get(username=username)
-
-    game_id = getSessionData(request)
-    if game_id is not None:
-        print('Resuming old session from game_id')
-        logger.info('Resuming old session from game_id')
-        logger.info(game_id)
-        print(game_id)
-        game = Game.objects.get(id=game_id)
-        grid, game.winner = ai_response(game.get_grid(), move)
-        game.set_grid(grid)
-        game.save()
-        logger.info('saved game')
-
+    move = body['move']
+    user = request.user
+    session_id = request.COOKIES.get('sessionid')
+    if Session.objects.filter(session_id=session_id).exists() is False:
+        session = Session(session_id=session_id)
     else:
-        print('Creating new game')
-        logger.info('Creating new game')
-        game = Game(user=user)
-        grid = game.get_grid()
-        grid, game.winner = ai_response(grid, move)
-        game.set_grid(grid)
-        game.save()
-        setSessionData(request, game.id)
-        print(game.id)
-        print(grid)
-        logger.info('saved game')
-        logger.info(game.id)
+        session = Session.objects.get(session_id=session_id)
 
-    response['grid'] = game.get_grid()
-    response['winner'] = game.winner
-    if game.has_winner():
-        logger.info('deleted session data after game end')
-        deleteSessionData(request)
-        logger.info('success')
+    if move is None:
+        response['grid'] = session.get_grid()
+        response['winner'] = session.winner
+        return JsonResponse(response)
+
+    if session.started is False:
+        session.started = True
+        session.start_date = datetime.datetime.now()
+
+    grid = session.get_grid()
+    grid, session.winner = ai_response(grid, move)
+    session.set_grid(grid)
+    session.save()
+
+    response['grid'] = session.get_grid()
+    response['winner'] = session.winner
+    if session.has_winner():
+        game = Game(user=user, start_date=session.start_date, winner=session.winner)
+        game.set_grid(session.get_grid())
+        game.save()
+        session.reset()
+
     return JsonResponse(response)
 
 
@@ -178,20 +169,22 @@ def verify_user(request):
 @require_http_methods(["POST"])
 def listgames(request):
     response = {}
-    response['status'] = 'OK'
-    logger.info(request.session['username'])
-    logger.info('listgame session username')
-    user = User.objects.get(username=request.session['username'])
-    games = Game.objects.filter(user=user)
-    games_data = []
-    for item in games:
-        game = {
-            'id': item.id,
-            'start_date': item.start_date
-        }
-        games_data.append(game)
-    response['games'] = games_data
-    return JsonResponse(response)
+    try:
+        user = User.objects.get(username=request.session['username'])
+        games = Game.objects.filter(user=user)
+        games_data = []
+        for item in games:
+            game = {
+                'id': item.id,
+                'start_date': item.start_date
+            }
+            games_data.append(game)
+        response['games'] = games_data
+        response['status'] = 'OK'
+        return JsonResponse(response)
+    except:
+        response = {'status': 'ERROR'}
+        return JsonResponse(response)
 
 
 @csrf_exempt
@@ -211,7 +204,7 @@ def getgame(request):
         else:
             raise User.DoesNotMatch
         return JsonResponse(response)
-    except Game.DoesNotExist:
+    except:
         response = {'status': 'ERROR'}
         return JsonResponse(response)
 
@@ -219,11 +212,15 @@ def getgame(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def getscore(request):
-    user = User.objects.get(username=request.session['username'])
-    win, lose, tie = Game.get_score(user)
-    response = {}
-    response['status'] = 'OK'
-    response['human'] = win
-    response['wopr'] = lose
-    response['tie'] = tie
-    return JsonResponse(response)
+    try:
+        user = User.objects.get(username=request.session['username'])
+        win, lose, tie = Game.get_score(user)
+        response = {}
+        response['status'] = 'OK'
+        response['human'] = win
+        response['wopr'] = lose
+        response['tie'] = tie
+        return JsonResponse(response)
+    except:
+        response = {'status': 'ERROR'}
+        return JsonResponse(response)

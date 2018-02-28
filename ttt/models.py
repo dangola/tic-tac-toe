@@ -38,5 +38,25 @@ class Game(models.Model):
 
 
 class Session(models.Model):
-    game_id = models.IntegerField(unique=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, unique=True)
+    session_id = models.CharField(max_length=255, default='abracadabra')
+    start_date = models.DateTimeField(auto_now_add=True)
+    grid = models.CharField(max_length=100, default=json.dumps([' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']))
+    winner = models.CharField(max_length=1, default=' ')
+    started = models.BooleanField(default=False)
+    username = models.CharField(max_length=200)
+
+    def set_grid(self, grid):
+        self.grid = json.dumps(grid)
+
+    def get_grid(self):
+        return json.loads(self.grid)
+
+    def has_winner(self):
+        board = json.loads(self.grid)
+        return self.winner != ' ' or ' ' not in board
+
+    def reset(self):
+        self.grid = json.dumps([' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '])
+        self.winner = ' '
+        self.started = False
+        self.save()

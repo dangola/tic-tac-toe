@@ -191,11 +191,9 @@ $(function () {
 
       if (document.getElementById(id).innerHTML.trim() != "" || winner != ' ') {;}   // Ignore if grid box contains a move or if winner is decided
       else {
-        grid[id] = PLAYER_ICON;
-
-        var arr = { move: id };
         document.getElementById(id).innerHTML = PLAYER_ICON;
-
+        id = parseInt(id, 10);
+        var arr = {"move":id};
         $.ajax({
           type: "POST",
           url: '/ttt/play',
