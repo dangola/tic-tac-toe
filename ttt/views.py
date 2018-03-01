@@ -80,8 +80,7 @@ def play(request):
             session.reset()
         return JsonResponse(response)
     except:
-        tb = traceback.format_exc()
-        return HttpResponse(tb)
+        return JsonResponse({"status": "ERROR"})
 
 
 def index(request):
@@ -123,8 +122,9 @@ def login_user(request):
     user = authenticate(username=username, password=password)
     if user is not None:
         login(request, user)
-        request.set_cookie("username", username)
-        return JsonResponse({'status': 'OK'})
+        response = JsonResponse({'status': 'OK'})
+        response.set_cookie('username', username)
+        return response
     else:
         return JsonResponse({'status': 'ERROR'})
 
@@ -199,7 +199,7 @@ def getgame(request):
         if user.id == game.user_id:
             response = {}
             response['status'] = 'OK'
-            response['grid'] = game.grid
+            response['grid'] = game.get_grid()
             response['winner'] = game.winner
         else:
             raise User.DoesNotMatch
