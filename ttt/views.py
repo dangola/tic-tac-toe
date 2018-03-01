@@ -50,35 +50,38 @@ def play(request):
     response = {}
     move = body['move']
     user = request.user
-    session_id = request.COOKIES.get('sessionid')
-    if Session.objects.filter(session_id=session_id).exists() is False:
-        session = Session(session_id=session_id)
-    else:
-        session = Session.objects.get(session_id=session_id)
+    try:
+        session_id = request.COOKIES.get('sessionid')
+        if Session.objects.filter(session_id=session_id).exists():
+            session = Session.objects.get(session_id=session_id)
+        else:
+            session = Session(session_id=session_id)
 
-    if move is None:
+        if move is None:
+            response['grid'] = session.get_grid()
+            response['winner'] = session.winner
+            return JsonResponse(response)
+
+        if session.started is False:
+            session.started = True
+            session.start_date = datetime.datetime.now()
+
+        grid = session.get_grid()
+        grid, session.winner = ai_response(grid, move)
+        session.set_grid(grid)
+        session.save()
+
         response['grid'] = session.get_grid()
         response['winner'] = session.winner
+        if session.has_winner():
+            game = Game(user=user, start_date=session.start_date, winner=session.winner)
+            game.set_grid(session.get_grid())
+            game.save()
+            session.reset()
         return JsonResponse(response)
-
-    if session.started is False:
-        session.started = True
-        session.start_date = datetime.datetime.now()
-
-    grid = session.get_grid()
-    grid, session.winner = ai_response(grid, move)
-    session.set_grid(grid)
-    session.save()
-
-    response['grid'] = session.get_grid()
-    response['winner'] = session.winner
-    if session.has_winner():
-        game = Game(user=user, start_date=session.start_date, winner=session.winner)
-        game.set_grid(session.get_grid())
-        game.save()
-        session.reset()
-
-    return JsonResponse(response)
+    except:
+        tb = traceback.format_exc()
+        return HttpResponse(tb)
 
 
 def index(request):
@@ -120,7 +123,7 @@ def login_user(request):
     user = authenticate(username=username, password=password)
     if user is not None:
         login(request, user)
-        request.session['username'] = username
+        request.set_cookie("username", username)
         return JsonResponse({'status': 'OK'})
     else:
         return JsonResponse({'status': 'ERROR'})
@@ -166,7 +169,8 @@ def verify_user(request):
 def listgames(request):
     response = {}
     try:
-        user = User.objects.get(username=request.session['username'])
+        username = request.COOKIES.get('username')
+        user = User.objects.get(username=username)
         games = Game.objects.filter(user=user)
         games_data = []
         for item in games:
@@ -188,15 +192,15 @@ def listgames(request):
 def getgame(request):
     body = json.loads(request.body.decode('utf-8'))
     try:
+        username = request.COOKIES.get('username')
         game_id = body['id']
         game = Game.objects.get(id=game_id)
-        if request.session['username']:
-            user = User.objects.get(username=request.session['username'])
-            if user.id == game.user_id:
-                response = {}
-                response['status'] = 'OK'
-                response['grid'] = game.grid
-                response['winner'] = game.winner
+        user = User.objects.get(username=username)
+        if user.id == game.user_id:
+            response = {}
+            response['status'] = 'OK'
+            response['grid'] = game.grid
+            response['winner'] = game.winner
         else:
             raise User.DoesNotMatch
         return JsonResponse(response)
@@ -209,7 +213,8 @@ def getgame(request):
 @require_http_methods(["POST"])
 def getscore(request):
     try:
-        user = User.objects.get(username=request.session['username'])
+        username = request.COOKIES.get('username')
+        user = User.objects.get(username=username)
         win, lose, tie = Game.get_score(user)
         response = {}
         response['status'] = 'OK'
