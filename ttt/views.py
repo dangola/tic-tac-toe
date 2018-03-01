@@ -123,8 +123,9 @@ def login_user(request):
     user = authenticate(username=username, password=password)
     if user is not None:
         login(request, user)
-        request.set_cookie("username", username)
-        return JsonResponse({'status': 'OK'})
+        response = JsonResponse({'status': 'OK'})
+        response.set_cookie('username', username)
+        return response
     else:
         return JsonResponse({'status': 'ERROR'})
 
